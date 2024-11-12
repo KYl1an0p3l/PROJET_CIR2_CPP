@@ -3,10 +3,24 @@
 
 #include "Projet.h"
 
-using namespace std;
-
 int main()
 {
-	cout << "Hello CMake." << endl;
-	return 0;
+    window.setFramerateLimit(30);
+
+    while (window.isOpen()) {
+        Event event;
+
+        while (window.pollEvent(event)) {
+            if (event.type == Event::Closed) {
+                window.close();
+            }
+        }
+
+        window.clear(Color::Black);
+
+        window.display();
+    }
+
+    window.close();
+    return 0;
 }

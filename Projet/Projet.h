@@ -2,7 +2,13 @@
 // ou les fichiers Include spécifiques aux projets.
 
 #pragma once
-
+#include <stdio.h>
+#include <stdlib.h>
 #include <iostream>
+#include <SFML/Audio.hpp>
+#include <SFML/Graphics.hpp>
+#include <SFML/Window.hpp>
+using namespace std;
+using namespace sf;
 
-// TODO: Référencez ici les en-têtes supplémentaires nécessaires à votre programme.
+RenderWindow window(VideoMode(800, 600), "Projet CPP");

@@ -11,5 +11,10 @@ endif()
 
 project ("PROJET_CIR2_CPP")
 
+# On inclue la SFML
+set(SFML_DIR "lib/SFML-2.6.1/lib/cmake/SFML")
+find_package(SFML 2.6 COMPONENTS system window graphics audio REQUIRED)
+
 # Incluez les sous-projets.
-add_subdirectory ("Projet")
+add_subdirectory (Projet)
+
