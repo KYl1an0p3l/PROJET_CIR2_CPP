@@ -1102,18 +1102,6 @@
 			"value" : "C:/Users/Admin/source/repos/PROJET_CIR2_CPP"
 		},
 		{
-			"name" : "SFML_DIR",
-			"properties" : 
-			[
-				{
-					"name" : "HELPSTRING",
-					"value" : "The directory containing a CMake configuration file for SFML."
-				}
-			],
-			"type" : "PATH",
-			"value" : "SFML_DIR-NOTFOUND"
-		},
-		{
 			"name" : "SFML_DOC_DIR",
 			"properties" : 
 			[

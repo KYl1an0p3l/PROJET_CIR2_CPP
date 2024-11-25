@@ -12,3 +12,9 @@ using namespace std;
 using namespace sf;
 
 RenderWindow window(VideoMode(800, 600), "Projet CPP");
+
+typedef struct Voiture{
+	int longueur = 2;
+	int vitesse = 3;
+	int id = 6;
+}Voiture;

@@ -3,7 +3,7 @@
 #
 
 # Ajoutez une source à l'exécutable de ce projet.
-add_executable (Projet "Projet.cpp" "Projet.h")
+add_executable (Projet "Projet.cpp" "Projet.h" "map.cpp" "map.h")
 
 #cibles
 target_link_libraries(Projet sfml-system sfml-window sfml-graphics sfml-audio)

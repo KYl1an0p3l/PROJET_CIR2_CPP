@@ -1,9 +1,4 @@
 {
-  "ExpandedNodes": [
-    ""
-  ],
-  "SelectedNode": "\\C:\\Users\\Admin\\Source\\Repos\\PROJET_CIR2_CPP",
-  "PreviewInSolutionExplorer": false,
   "OutputFoldersPerTargetSystem": {
     "Local Machine": [
       "out\\build\\x64-debug",
@@ -15,5 +10,11 @@
       "out\\build\\x86-release",
       "out\\install\\x86-release"
     ]
-  }
+  },
+  "ExpandedNodes": [
+    "",
+    "\\Projet"
+  ],
+  "SelectedNode": "\\Projet\\Projet.cpp",
+  "PreviewInSolutionExplorer": false
 }

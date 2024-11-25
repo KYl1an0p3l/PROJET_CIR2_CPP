@@ -204,9 +204,6 @@ PROJET_CIR2_CPP_IS_TOP_LEVEL:STATIC=ON
 //Value Computed by CMake
 PROJET_CIR2_CPP_SOURCE_DIR:STATIC=C:/Users/Admin/source/repos/PROJET_CIR2_CPP
 
-//The directory containing a CMake configuration file for SFML.
-SFML_DIR:PATH=SFML_DIR-NOTFOUND
-
 //Path to a file.
 SFML_DOC_DIR:PATH=SFML_DOC_DIR-NOTFOUND
 
