@@ -22,7 +22,8 @@ int main()
         window.clear(Color::White);
 
         gestion_couleur();
-
+        gestion_feux(cpt, etat_feu);
+        cpt++; //On passe 1 itération
         window.display();
     }
 
