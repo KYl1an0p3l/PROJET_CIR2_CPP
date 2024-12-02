@@ -24,6 +24,9 @@ int main()
         gestion_couleur();
         gestion_feux(cpt, etat_feu);
         cpt++; //On passe 1 itération
+        //generation_voitures();
+        //deplacement_voitures();
+
         window.display();
     }
 

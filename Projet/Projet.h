@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
+#include <ctime>
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
@@ -22,15 +23,20 @@ RenderWindow window(VideoMode(800, 640), "Projet CPP");
 //----------------------Structures-------------------------------------------------------------
 
 typedef struct Voiture {
-	int longueur = 2;
-	int vitesse = 3;
-	int id = 6;
+    int x;
+    int y;
+    int direction;
+    int longueur = 2;
+    int vitesse = 3;
+    int id = 6;
 }Voiture;
 
 //------------------Fonctions----------------------------------------------------------------
 
 void gestion_couleur();
 void gestion_feux(int& cpt, int& etat_feu);
+void generation_voitures();
+void deplacement_voitures();
 
 //-------------Fonctions (explicités)---------------------------------------------------------------------------
 
@@ -117,3 +123,153 @@ void gestion_feux(int& cpt, int& etat_feu) {
     
 }
 
+// Déclaration du vecteur pour stocker les voitures
+vector<Voiture> voitures;
+
+void generation_voitures() {
+    if (rand() % 100 >= 75) return;
+
+    int direction = rand() % 4;
+    for (int i = 0; i < 4; i++) {
+        switch ((direction + i) % 4) {
+            case 0: // Haut
+                if (carte[0][15] == 1 && carte[1][15] == 1 && carte[2][15] == 1) {
+                    voitures.push_back({0, 15, 1, 2, 3});
+                    carte[0][15] = 6;
+                    carte[1][15] = 6;
+                    return;
+                }
+            break;
+
+            case 1: // Bas
+                if (carte[31][16] == 1 && carte[30][16] == 1 && carte[29][16] == 1) {
+                    voitures.push_back({31, 16, 0, 2, 3});
+                    carte[31][16] = 6;
+                    carte[30][16] = 6;
+                    return;
+                }
+            break;
+
+            case 2: // Gauche
+                if (carte[17][31] == 1 && carte[17][30] == 1 && carte[17][29] == 1) {
+                    voitures.push_back({17, 31, 2, 2, 3});
+                    carte[17][31] = 6;
+                    carte[17][30] = 6;
+                    return;
+                }
+            break;
+
+            case 3: // Droite
+                if (carte[19][0] == 1 && carte[19][1] == 1 && carte[19][2] == 1) {
+                    voitures.push_back({19, 0, 3, 2, 3});
+                    carte[19][0] = 6;
+                    carte[19][1] = 6;
+                    return;
+                }
+            break;
+        }
+    }
+}
+
+
+void deplacement_voitures() {
+
+    for (size_t i = 0; i < voitures.size(); i++ ) {
+        Voiture& voiture = voitures[i];
+
+        // Libérer les anciennes positions sur la carte
+        switch (voiture.direction) {
+            case 0: // Haut
+                carte[voiture.x][voiture.y] = 1;
+                carte[voiture.x - 1][voiture.y] = 1;
+                break;
+            case 1: // Bas
+                carte[voiture.x][voiture.y] = 1;
+                carte[voiture.x + 1][voiture.y] = 1;
+                break;
+            case 2: // Gauche
+                carte[voiture.x][voiture.y] = 1;
+                carte[voiture.x][voiture.y - 1] = 1;
+                break;
+            case 3: // Droite
+                carte[voiture.x][voiture.y] = 1;
+                carte[voiture.x][voiture.y + 1] = 1;
+                break;
+        }
+
+        // Calcul de la nouvelle position
+        int newX = voiture.x, newY = voiture.y;
+        switch (voiture.direction) {
+            case 0: newX -= voiture.vitesse; break; // Haut
+            case 1: newX += voiture.vitesse; break; // Bas
+            case 2: newY -= voiture.vitesse; break; // Gauche
+            case 3: newY += voiture.vitesse; break; // Droite
+        }
+
+        // Vérification des limites
+        if (newX <= 0 || newX >= 31 || newY <= 0 || newY >= 31) {
+            voitures.erase(voitures.begin() + i);
+            i--;
+            continue;
+        }
+
+        // Vérification des collisions
+        bool collision = false;
+        switch (voiture.direction) {
+            case 0: // Haut
+                if (newX >= 3) {
+                    collision = carte[newX][newY] == voiture.id || carte[newX - 1][newY] == voiture.id || carte[newX - 2][newY] == voiture.id || carte[newX - 3][newY] == voiture.id;
+                }
+            break;
+            case 1: // Bas
+                if (newX <= 28) {
+                    collision = carte[newX][newY] == voiture.id || carte[newX + 1][newY] == voiture.id || carte[newX + 2][newY] == voiture.id || carte[newX + 3][newY] == voiture.id;
+                }
+            break;
+            case 2: // Gauche
+                if (newY >= 3) {
+                    collision = carte[newX][newY] == voiture.id || carte[newX][newY - 1] == voiture.id || carte[newX][newY - 2] == voiture.id || carte[newX][newY - 3] == voiture.id;
+                }
+            break;
+            case 3: // Droite
+                if (newY <= 28) {
+                    collision = carte[newX][newY] == voiture.id || carte[newX][newY + 1] == voiture.id || carte[newX][newY + 2] == voiture.id || carte[newX][newY + 3] == voiture.id;
+                }
+            break;
+        }
+
+
+        if (collision) {
+            continue;
+        }
+
+
+
+        // Mise à jour de la position
+        if (voiture.direction == 0 || voiture.direction == 1) {
+            voiture.x = newX;
+        } else if (voiture.direction == 2 || voiture.direction == 3) {
+            voiture.y = newY;
+        }
+
+        // Mise à jour de la carte
+        switch (voiture.direction) {
+            case 0: // Haut
+                carte[voiture.x][voiture.y] = voiture.id;
+                carte[voiture.x - 1][voiture.y] = voiture.id;
+                break;
+            case 1: // Bas
+                carte[voiture.x][voiture.y] = voiture.id;
+                carte[voiture.x + 1][voiture.y] = voiture.id;
+                break;
+            case 2: // Gauche
+                carte[voiture.x][voiture.y] = voiture.id;
+                carte[voiture.x][voiture.y - 1] = voiture.id;
+                break;
+            case 3: // Droite
+                carte[voiture.x][voiture.y] = voiture.id;
+                carte[voiture.x][voiture.y + 1] = voiture.id;
+                break;
+        }
+    }
+}
