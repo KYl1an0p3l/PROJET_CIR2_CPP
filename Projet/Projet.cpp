@@ -24,10 +24,11 @@ int main()
         gestion_couleur();
         gestion_feux(cpt, etat_feu);
         cpt++; //On passe 1 itération
-        //generation_voitures();
-        //deplacement_voitures();
+        generation_voitures();
+        deplacement_voitures();
 
         window.display();
+        this_thread::sleep_for(std::chrono::seconds(1));
     }
 
     window.close();

@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <iostream>
 #include <ctime>
+#include <thread>
+#include <chrono>
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
@@ -37,6 +39,7 @@ void gestion_couleur();
 void gestion_feux(int& cpt, int& etat_feu);
 void generation_voitures();
 void deplacement_voitures();
+void free_placement(Voiture voiture);
 
 //-------------Fonctions (explicités)---------------------------------------------------------------------------
 
@@ -171,31 +174,32 @@ void generation_voitures() {
     }
 }
 
+void free_placement(Voiture voiture) {
+    // Libérer les anciennes positions sur la carte
+    switch (voiture.direction) {
+        case 0: // Haut
+            carte[voiture.x][voiture.y] = 1;
+        carte[voiture.x - 1][voiture.y] = 1;
+        break;
+        case 1: // Bas
+            carte[voiture.x][voiture.y] = 1;
+        carte[voiture.x + 1][voiture.y] = 1;
+        break;
+        case 2: // Gauche
+            carte[voiture.x][voiture.y] = 1;
+        carte[voiture.x][voiture.y - 1] = 1;
+        break;
+        case 3: // Droite
+            carte[voiture.x][voiture.y] = 1;
+        carte[voiture.x][voiture.y + 1] = 1;
+        break;
+    }
+}
 
 void deplacement_voitures() {
 
     for (size_t i = 0; i < voitures.size(); i++ ) {
         Voiture& voiture = voitures[i];
-
-        // Libérer les anciennes positions sur la carte
-        switch (voiture.direction) {
-            case 0: // Haut
-                carte[voiture.x][voiture.y] = 1;
-                carte[voiture.x - 1][voiture.y] = 1;
-                break;
-            case 1: // Bas
-                carte[voiture.x][voiture.y] = 1;
-                carte[voiture.x + 1][voiture.y] = 1;
-                break;
-            case 2: // Gauche
-                carte[voiture.x][voiture.y] = 1;
-                carte[voiture.x][voiture.y - 1] = 1;
-                break;
-            case 3: // Droite
-                carte[voiture.x][voiture.y] = 1;
-                carte[voiture.x][voiture.y + 1] = 1;
-                break;
-        }
 
         // Calcul de la nouvelle position
         int newX = voiture.x, newY = voiture.y;
@@ -208,6 +212,7 @@ void deplacement_voitures() {
 
         // Vérification des limites
         if (newX <= 0 || newX >= 31 || newY <= 0 || newY >= 31) {
+            free_placement(voiture);
             voitures.erase(voitures.begin() + i);
             i--;
             continue;
@@ -242,6 +247,9 @@ void deplacement_voitures() {
         if (collision) {
             continue;
         }
+
+
+        free_placement(voiture);
 
 
 
