@@ -7,6 +7,7 @@
 #include <iostream>
 #include <ctime>
 #include <thread>
+#include <mutex>
 #include <chrono>
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
@@ -33,14 +34,23 @@ int etat_feu = 0;
 int cpt = 0;
 RenderWindow window(VideoMode(800, 640), "Projet CPP");
 vector<Objet> objets;
+mutex objets_mutex;
 
 //------------------Fonctions----------------------------------------------------------------
 
 void gestion_couleur();
 void gestion_feux(int& cpt, int& etat_feu);
 void generation_voitures();
+void generation_pietons();
 void deplacement();
 void free_position(Objet objet);
+
+//-----------------Threads-------------------------------------------------------------------------------------------
+
+void thread_gestion_couleur();
+void thread_gestion_feux();
+void thread_generation_objets();
+
 
 //-------------Fonctions (explicités)---------------------------------------------------------------------------
 
@@ -63,6 +73,12 @@ void gestion_couleur() {
             }
             else if (carte[i][j] == 4) {
                 tile.setFillColor(Color(200, 200, 200));
+            }
+            else if (carte[i][j] == 6) {
+                tile.setFillColor(Color::Blue);
+            }
+            else if (carte[i][j] == 7) {
+                tile.setFillColor(Color::Red);
             }
             window.draw(tile);
         }
@@ -151,7 +167,7 @@ void generation_voitures() {
             }
             break;
 
-        case 2: // Gauche
+        case 2: // Droite
             if (carte[17][31] == 1 && carte[17][30] == 1 && carte[17][29] == 1) {
                 objets.push_back({ 17, 31, 2, 1, 3, 6 });
                 carte[17][31] = 6;
@@ -160,11 +176,52 @@ void generation_voitures() {
             }
             break;
 
-        case 3: // Droite
+        case 3: // Gauche
             if (carte[19][0] == 1 && carte[19][1] == 1 && carte[19][2] == 1) {
                 objets.push_back({ 19, 0, 3, 1, 3, 6 });
                 carte[19][0] = 6;
                 carte[19][1] = 6;
+                return;
+            }
+            break;
+        }
+    }
+}
+
+void generation_pietons() {
+    if (rand() % 100 >= 75) return;
+
+    int direction = rand() % 4;
+    for (int i = 0; i < 4; i++) {
+        switch ((direction + i) % 4) {
+        case 0: // Haut
+            if (carte[0][13] == 4 && carte[1][13] == 4) {
+                objets.push_back({ 0, 13, 1, 0, 1, 7 });
+                carte[0][13] = 7;
+                return;
+            }
+            break;
+
+        case 1: // Bas
+            if (carte[31][18] == 4 && carte[30][18] == 4) {
+                objets.push_back({ 31, 18, 0, 0, 1, 7 });
+                carte[31][18] = 7;
+                return;
+            }
+            break;
+
+        case 2: // Droite
+            if (carte[14][31] == 4 && carte[14][30] == 4) {
+                objets.push_back({ 14, 31, 2, 0, 1, 7 });
+                carte[14][31] = 7;
+                return;
+            }
+            break;
+
+        case 3: // Gauche
+            if (carte[22][0] == 4 && carte[22][1] == 1) { //Ce trottoir est un peu spécifique
+                objets.push_back({ 22, 0, 3, 0, 1, 7 });
+                carte[22][0] = 7;
                 return;
             }
             break;
@@ -279,20 +336,48 @@ void deplacement() {
         switch (objet.direction) {
         case 0: // Haut
             carte[objet.x][objet.y] = objet.id;
-            carte[objet.x - 1][objet.y] = objet.id;
+            carte[objet.x - objet.longueur][objet.y] = objet.id;
             break;
         case 1: // Bas
             carte[objet.x][objet.y] = objet.id;
-            carte[objet.x + 1][objet.y] = objet.id;
+            carte[objet.x + objet.longueur][objet.y] = objet.id;
             break;
         case 2: // Gauche
             carte[objet.x][objet.y] = objet.id;
-            carte[objet.x][objet.y - 1] = objet.id;
+            carte[objet.x][objet.y - objet.longueur] = objet.id;
             break;
         case 3: // Droite
             carte[objet.x][objet.y] = objet.id;
-            carte[objet.x][objet.y + 1] = objet.id;
+            carte[objet.x][objet.y + objet.longueur] = objet.id;
             break;
         }
+    }
+}
+
+//----------------------------Threads (explicités)--------------------------------------------
+
+void thread_gestion_couleur() {
+    while (window.isOpen()) {
+        objets_mutex.lock();
+        gestion_couleur();
+        objets_mutex.unlock();
+        this_thread::sleep_for(chrono::milliseconds(33)); // 30 FPS
+    }
+}
+
+void thread_gestion_feux() {
+    while (window.isOpen()) {
+        gestion_feux(cpt, etat_feu);
+        this_thread::sleep_for(chrono::milliseconds(33)); // 30 FPS
+    }
+}
+
+void thread_generation_objets() {
+    while (window.isOpen()) {
+        objets_mutex.lock();
+        generation_voitures();
+        generation_pietons();
+        objets_mutex.unlock();
+        this_thread::sleep_for(chrono::milliseconds(33));
     }
 }

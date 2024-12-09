@@ -25,11 +25,17 @@ int main()
         gestion_feux(cpt, etat_feu);
         cpt++; //On passe 1 itération
         generation_voitures();
+        objets_mutex.lock();
         deplacement();
+        objets_mutex.unlock();
 
         window.display();
-        this_thread::sleep_for(std::chrono::seconds(1));
+        this_thread::sleep_for(chrono::seconds(1));
     }
+
+    jthread t_gestion_couleur(thread_gestion_couleur);
+    jthread t_gestion_feux(thread_gestion_feux);
+    jthread t_generation_objets(thread_generation_objets);
 
     window.close();
     return 0;
