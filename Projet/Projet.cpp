@@ -25,7 +25,7 @@ int main()
         gestion_feux(cpt, etat_feu);
         cpt++; //On passe 1 itération
         generation_voitures();
-        deplacement_voitures();
+        deplacement();
 
         window.display();
         this_thread::sleep_for(std::chrono::seconds(1));
