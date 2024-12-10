@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
+#include <cstdlib>
 #include <ctime>
 #include <thread>
 #include <mutex>
@@ -44,6 +45,7 @@ void generation_voitures();
 void generation_pietons();
 void deplacement();
 void free_position(Objet objet);
+void gestion_stop(Objet objet, int& etat_feu);
 
 //-----------------Threads-------------------------------------------------------------------------------------------
 
@@ -151,7 +153,7 @@ void generation_voitures() {
         switch ((direction + i) % 4) {
         case 0: // Haut
             if (carte[0][15] == 1 && carte[1][15] == 1 && carte[2][15] == 1) {
-                objets.push_back({ 0, 15, 1, 1, 3, 6 });
+                objets.push_back({ 15, 1, 1, 1, 3, 6 });
                 carte[0][15] = 6;
                 carte[1][15] = 6;
                 return;
@@ -160,7 +162,7 @@ void generation_voitures() {
 
         case 1: // Bas
             if (carte[31][16] == 1 && carte[30][16] == 1 && carte[29][16] == 1) {
-                objets.push_back({ 31, 16, 0, 1, 3, 6 });
+                objets.push_back({ 16, 30, 0, 1, 3, 6 });
                 carte[31][16] = 6;
                 carte[30][16] = 6;
                 return;
@@ -169,7 +171,7 @@ void generation_voitures() {
 
         case 2: // Droite
             if (carte[17][31] == 1 && carte[17][30] == 1 && carte[17][29] == 1) {
-                objets.push_back({ 17, 31, 2, 1, 3, 6 });
+                objets.push_back({ 30, 17, 2, 1, 3, 6 });
                 carte[17][31] = 6;
                 carte[17][30] = 6;
                 return;
@@ -178,7 +180,7 @@ void generation_voitures() {
 
         case 3: // Gauche
             if (carte[19][0] == 1 && carte[19][1] == 1 && carte[19][2] == 1) {
-                objets.push_back({ 19, 0, 3, 1, 3, 6 });
+                objets.push_back({ 1, 19, 3, 1, 3, 6 });
                 carte[19][0] = 6;
                 carte[19][1] = 6;
                 return;
@@ -233,20 +235,37 @@ void free_position(Objet objet) {
     // Libérer les anciennes positions sur la carte
     switch (objet.direction) {
     case 0: // Haut
-        carte[objet.x][objet.y] = 1;
-        carte[objet.x - objet.longueur][objet.y] = 1;
+        carte[objet.y][objet.x] = 1;
+        carte[objet.y + objet.longueur][objet.x] = 1;
         break;
     case 1: // Bas
-        carte[objet.x][objet.y] = 1;
-        carte[objet.x + objet.longueur][objet.y] = 1;
+        carte[objet.y][objet.x] = 1;
+        carte[objet.y - objet.longueur][objet.x] = 1;
         break;
     case 2: // Gauche
-        carte[objet.x][objet.y] = 1;
-        carte[objet.x][objet.y - objet.longueur] = 1;
+        carte[objet.y][objet.x] = 1;
+        carte[objet.y][objet.x + objet.longueur] = 1;
         break;
     case 3: // Droite
-        carte[objet.x][objet.y] = 1;
-        carte[objet.x][objet.y + objet.longueur] = 1;
+        carte[objet.y][objet.x] = 1;
+        carte[objet.y][objet.x - objet.longueur] = 1;
+        break;
+    }
+}
+
+void gestion_stop(Objet objet, int& etat_feu) {
+    switch (objet.direction) {
+        case 0: // Haut
+
+        break;
+        case 1: // Bas
+
+        break;
+        case 2: // Gauche
+
+        break;
+        case 3: // Droite
+
         break;
     }
 }
@@ -259,14 +278,14 @@ void deplacement() {
         // Calcul de la nouvelle position
         int newX = objet.x, newY = objet.y;
         switch (objet.direction) {
-        case 0: newX -= objet.vitesse; break; // Haut
-        case 1: newX += objet.vitesse; break; // Bas
-        case 2: newY -= objet.vitesse; break; // Gauche
-        case 3: newY += objet.vitesse; break; // Droite
+        case 0: newY -= objet.vitesse; break; // Haut
+        case 1: newY += objet.vitesse; break; // Bas
+        case 2: newX -= objet.vitesse; break; // Gauche
+        case 3: newX += objet.vitesse; break; // Droite
         }
 
         // Vérification des limites
-        if (newX <= 0 || newX >= 31 || newY <= 0 || newY >= 31) {
+        if (newX < 0 || newX > 31 || newY < 0 || newY > 31) {
             free_position(objet);
             objets.erase(objets.begin() + i);
             i--;
@@ -277,37 +296,37 @@ void deplacement() {
         bool collision = false;
         switch (objet.direction) {
         case 0: // Haut
-            if (newX >= 3) {
+            if (newY >= 3) {
                 for (int i = 0; i < objet.vitesse; i++) {
                     if (!collision) {
-                        collision = carte[newX - i][newY] == objet.id;
+                        collision = carte[newY + i][newX] == objet.id;
                     }
                 }
             }
             break;
         case 1: // Bas
-            if (newX <= 28) {
+            if (newY <= 28) {
                 for (int i = 0; i < objet.vitesse; i++) {
                     if (!collision) {
-                        collision = carte[newX + i][newY] == objet.id;
+                        collision = carte[newY - i][newX] == objet.id;
                     }
                 }
             }
             break;
         case 2: // Gauche
-            if (newY >= 3) {
+            if (newX >= 3) {
                 for (int i = 0; i < objet.vitesse; i++) {
                     if (!collision) {
-                        collision = carte[newX][newY - i] == objet.id;
+                        collision = carte[newY][newX + i] == objet.id;
                     }
                 }
             }
             break;
         case 3: // Droite
-            if (newY <= 28) {
+            if (newX <= 28) {
                 for (int i = 0; i < objet.vitesse; i++) {
                     if (!collision) {
-                        collision = carte[newX][newY + i] == objet.id;
+                        collision = carte[newY][newX - i] == objet.id;
                     }
                 }
             }
@@ -326,29 +345,29 @@ void deplacement() {
 
         // Mise à jour de la position
         if (objet.direction == 0 || objet.direction == 1) {
-            objet.x = newX;
+            objet.y = newY;
         }
         else if (objet.direction == 2 || objet.direction == 3) {
-            objet.y = newY;
+            objet.x = newX;
         }
 
         // Mise à jour de la carte
         switch (objet.direction) {
         case 0: // Haut
-            carte[objet.x][objet.y] = objet.id;
-            carte[objet.x - objet.longueur][objet.y] = objet.id;
+            carte[objet.y][objet.x] = objet.id;
+            carte[objet.y + objet.longueur][objet.x] = objet.id;
             break;
         case 1: // Bas
-            carte[objet.x][objet.y] = objet.id;
-            carte[objet.x + objet.longueur][objet.y] = objet.id;
+            carte[objet.y][objet.x] = objet.id;
+            carte[objet.y - objet.longueur][objet.x] = objet.id;
             break;
         case 2: // Gauche
-            carte[objet.x][objet.y] = objet.id;
-            carte[objet.x][objet.y - objet.longueur] = objet.id;
+            carte[objet.y][objet.x] = objet.id;
+            carte[objet.y][objet.x + objet.longueur] = objet.id;
             break;
         case 3: // Droite
-            carte[objet.x][objet.y] = objet.id;
-            carte[objet.x][objet.y + objet.longueur] = objet.id;
+            carte[objet.y][objet.x] = objet.id;
+            carte[objet.y][objet.x - objet.longueur] = objet.id;
             break;
         }
     }

@@ -5,7 +5,7 @@
 
 int main()
 {
-
+    srand(static_cast<unsigned int>(time(0)));
     window.setFramerateLimit(30);
 
     while (window.isOpen()) {
