@@ -93,9 +93,9 @@ void gestion_feux(int& cpt, int& etat_feu) {
     if (cpt == 0) {
         feu.setFillColor(Color::Red);
         feu2.setFillColor(Color::Green);
-        etat_feu = 0;
+        etat_feu = 1;
     }
-    else if ((cpt % 1000) == 0) {
+    else if ((cpt % 10) == 0) {
         if (etat_feu == 0) {
             feu.setFillColor(Color::Red);
             feu2.setFillColor(Color::Green);
@@ -105,6 +105,7 @@ void gestion_feux(int& cpt, int& etat_feu) {
             feu.setFillColor(Color::Red);
             feu2.setFillColor(Color(255, 128, 0));
             etat_feu = 2;
+            cpt += 48;
         }
         else if (etat_feu == 2) {
             feu.setFillColor(Color::Green);
@@ -115,26 +116,27 @@ void gestion_feux(int& cpt, int& etat_feu) {
             feu.setFillColor(Color(255, 128, 0));
             feu2.setFillColor(Color::Red);
             etat_feu = 0;
+            cpt += 48;
         }
     }
     else {
-        if (etat_feu == 0) {
+        if (etat_feu == 1) {
             feu.setFillColor(Color::Red);
             feu2.setFillColor(Color::Green);
         }
-        else if (etat_feu == 1) {
+        else if (etat_feu == 2) {
             feu.setFillColor(Color::Red);
             feu2.setFillColor(Color(255, 128, 0));
-            cpt += 99; //Pour que l'on ne passe que 10 itérations en orange
+            cpt += 48; //Pour que l'on ne passe que 10 itérations en orange
         }
-        else if (etat_feu == 2) {
+        else if (etat_feu == 3) {
             feu.setFillColor(Color::Green);
             feu2.setFillColor(Color::Red);
         }
-        else if (etat_feu == 3) {
+        else if (etat_feu == 0) {
             feu.setFillColor(Color(255, 128, 0));
             feu2.setFillColor(Color::Red);
-            cpt += 99; //Pour que l'on ne passe que 10 itérations en orange
+            cpt += 48; //Pour que l'on ne passe que 10 itérations en orange
         }
     }
     cpt++;
@@ -145,6 +147,7 @@ void gestion_feux(int& cpt, int& etat_feu) {
 
 void generation_voitures() {
     if (rand() % 100 >= 75) return;
+    printf("\nTest_gen_v");
 
     int direction = rand() % 4;
     for (int i = 0; i < 4; i++) {
@@ -190,6 +193,7 @@ void generation_voitures() {
 
 void generation_pietons() {
     if (rand() % 100 >= 75) return;
+    printf("\nTest_gen_p");
 
     int direction = rand() % 4;
     for (int i = 0; i < 4; i++) {
@@ -250,7 +254,6 @@ void free_position(Objet objet) {
         break;
     }
 }
-
 void deplacement() {
 
     for (size_t i = 0; i < objets.size(); i++) {

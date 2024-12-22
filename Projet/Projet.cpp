@@ -25,6 +25,7 @@ int main()
         gestion_feux(cpt, etat_feu);
         cpt++; //On passe 1 itération
         generation_voitures();
+        generation_pietons();
         objets_mutex.lock();
         deplacement();
         objets_mutex.unlock();
