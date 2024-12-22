@@ -45,7 +45,7 @@ void generation_voitures();
 void generation_pietons();
 void deplacement();
 void free_position(Objet objet);
-void gestion_stop(Objet objet, int& etat_feu);
+bool gestion_stop(Objet objet, int& etat_feu);
 
 //-----------------Threads-------------------------------------------------------------------------------------------
 
@@ -95,9 +95,9 @@ void gestion_feux(int& cpt, int& etat_feu) {
     if (cpt == 0) {
         feu.setFillColor(Color::Red);
         feu2.setFillColor(Color::Green);
-        etat_feu = 0;
+        etat_feu = 1;
     }
-    else if ((cpt % 1000) == 0) {
+    else if ((cpt % 100) == 0) {
         if (etat_feu == 0) {
             feu.setFillColor(Color::Red);
             feu2.setFillColor(Color::Green);
@@ -107,6 +107,7 @@ void gestion_feux(int& cpt, int& etat_feu) {
             feu.setFillColor(Color::Red);
             feu2.setFillColor(Color(255, 128, 0));
             etat_feu = 2;
+            cpt += 48;
         }
         else if (etat_feu == 2) {
             feu.setFillColor(Color::Green);
@@ -117,26 +118,27 @@ void gestion_feux(int& cpt, int& etat_feu) {
             feu.setFillColor(Color(255, 128, 0));
             feu2.setFillColor(Color::Red);
             etat_feu = 0;
+            cpt += 48;
         }
     }
     else {
-        if (etat_feu == 0) {
+        if (etat_feu == 1) {
             feu.setFillColor(Color::Red);
             feu2.setFillColor(Color::Green);
         }
-        else if (etat_feu == 1) {
+        else if (etat_feu == 2) {
             feu.setFillColor(Color::Red);
             feu2.setFillColor(Color(255, 128, 0));
-            cpt += 99; //Pour que l'on ne passe que 10 itérations en orange
+            cpt += 48; //Pour que l'on ne passe que 10 itérations en orange
         }
-        else if (etat_feu == 2) {
+        else if (etat_feu == 3) {
             feu.setFillColor(Color::Green);
             feu2.setFillColor(Color::Red);
         }
-        else if (etat_feu == 3) {
+        else if (etat_feu == 0) {
             feu.setFillColor(Color(255, 128, 0));
             feu2.setFillColor(Color::Red);
-            cpt += 99; //Pour que l'on ne passe que 10 itérations en orange
+            cpt += 48; //Pour que l'on ne passe que 10 itérations en orange
         }
     }
     cpt++;
@@ -152,7 +154,7 @@ void generation_voitures() {
     for (int i = 0; i < 4; i++) {
         switch ((direction + i) % 4) {
         case 0: // Haut
-            if (carte[0][15] == 1 && carte[1][15] == 1 && carte[2][15] == 1) {
+            if (carte[0][15] == 1 && carte[1][15] == 1 && carte[2][15] == 1 && carte[3][15] == 1) {
                 objets.push_back({ 15, 1, 1, 1, 3, 6 });
                 carte[0][15] = 6;
                 carte[1][15] = 6;
@@ -161,7 +163,7 @@ void generation_voitures() {
             break;
 
         case 1: // Bas
-            if (carte[31][16] == 1 && carte[30][16] == 1 && carte[29][16] == 1) {
+            if (carte[31][16] == 1 && carte[30][16] == 1 && carte[29][16] == 1 && carte[28][16] == 1) {
                 objets.push_back({ 16, 30, 0, 1, 3, 6 });
                 carte[31][16] = 6;
                 carte[30][16] = 6;
@@ -170,7 +172,7 @@ void generation_voitures() {
             break;
 
         case 2: // Droite
-            if (carte[17][31] == 1 && carte[17][30] == 1 && carte[17][29] == 1) {
+            if (carte[17][31] == 1 && carte[17][30] == 1 && carte[17][29] == 1 && carte[17][28] == 1) {
                 objets.push_back({ 30, 17, 2, 1, 3, 6 });
                 carte[17][31] = 6;
                 carte[17][30] = 6;
@@ -179,7 +181,7 @@ void generation_voitures() {
             break;
 
         case 3: // Gauche
-            if (carte[19][0] == 1 && carte[19][1] == 1 && carte[19][2] == 1) {
+            if (carte[19][0] == 1 && carte[19][1] == 1 && carte[19][2] == 1 && carte[19][3] == 1) {
                 objets.push_back({ 1, 19, 3, 1, 3, 6 });
                 carte[19][0] = 6;
                 carte[19][1] = 6;
@@ -253,21 +255,34 @@ void free_position(Objet objet) {
     }
 }
 
-void gestion_stop(Objet objet, int& etat_feu) {
-    switch (objet.direction) {
-        case 0: // Haut
-
-        break;
-        case 1: // Bas
-
-        break;
-        case 2: // Gauche
-
-        break;
-        case 3: // Droite
-
-        break;
+// Vérification obligation d'arret
+bool gestion_stop(Objet objet, int& etat_feu) {
+    bool stop = false;
+    if (objet.id == 6) {
+        switch (objet.direction) {
+            case 0: // Haut
+                if (etat_feu == 3) { break; } // Feu vert
+                if (objet.y < 21 && etat_feu == 0) { break ; } // Freinage trop dangereux ou feu dépassé
+                stop = true;
+                break;
+            case 1: // Bas
+                if (etat_feu == 3) { break; } // Feu vert
+                if (objet.y > 11 && etat_feu == 0) { break ; } // Freinage trop dangereux ou feu dépassé
+                stop = true;
+                break;
+            case 2: // Gauche
+                if (etat_feu == 1) { break; } // Feu vert
+                if (objet.x < 21 && etat_feu == 2) { break ; } // Freinage trop dangereux ou feu dépassé
+                stop = true;
+                break;
+            case 3: // Droite
+                if (etat_feu == 1) { break; } // Feu vert
+                if (objet.x > 11 && etat_feu == 2) { break ; } // Freinage trop dangereux ou feu dépassé
+                stop = true;
+                break;
+        }
     }
+    return stop;
 }
 
 void deplacement() {
@@ -292,53 +307,87 @@ void deplacement() {
             continue;
         }
 
+
+
         // Vérification des collisions
         bool collision = false;
+
+
         switch (objet.direction) {
-        case 0: // Haut
-            if (newY >= 3) {
-                for (int i = 0; i < objet.vitesse; i++) {
-                    if (!collision) {
-                        collision = carte[newY + i][newX] == objet.id;
+            case 0: // Haut
+                if (newY >= 3) {
+                    for (int i = 0; i < objet.vitesse; i++) {
+                        if (!collision) {
+                            collision = carte[newY + i][newX] == objet.id;
+                        }
                     }
                 }
-            }
-            break;
-        case 1: // Bas
-            if (newY <= 28) {
-                for (int i = 0; i < objet.vitesse; i++) {
-                    if (!collision) {
-                        collision = carte[newY - i][newX] == objet.id;
+                break;
+            case 1: // Bas
+                if (newY <= 28) {
+                    for (int i = 0; i < objet.vitesse; i++) {
+                        if (!collision) {
+                            collision = carte[newY - i][newX] == objet.id;
+                        }
                     }
                 }
-            }
-            break;
-        case 2: // Gauche
-            if (newX >= 3) {
-                for (int i = 0; i < objet.vitesse; i++) {
-                    if (!collision) {
-                        collision = carte[newY][newX + i] == objet.id;
+                break;
+            case 2: // Gauche
+                if (newX >= 3) {
+                    for (int i = 0; i < objet.vitesse; i++) {
+                         if (!collision) {
+                            collision = carte[newY][newX + i] == objet.id;
+                         }
                     }
                 }
-            }
-            break;
-        case 3: // Droite
-            if (newX <= 28) {
-                for (int i = 0; i < objet.vitesse; i++) {
-                    if (!collision) {
-                        collision = carte[newY][newX - i] == objet.id;
+                break;
+            case 3: // Droite
+                if (newX <= 28) {
+                    for (int i = 0; i < objet.vitesse; i++) {
+                        if (!collision) {
+                            collision = carte[newY][newX - i] == objet.id;
+                        }
                     }
                 }
-            }
-            break;
+                break;
         }
 
-
+        // Si collision pas de déplacement
         if (collision) {
             continue;
         }
 
+        // Vérification couleur feu
+        bool stop = gestion_stop(objet, etat_feu);
 
+        if (stop) {
+            // Calcul de la distance
+            switch (objet.direction) {
+                case 0: // y 23
+                    if (objet.y == 25|| objet.y == 26) {newY++;}
+                    else if (objet.y == 24) {newY += 2;}
+                    else if (objet.y == 23) {continue;}
+                    break;
+                case 1: // y 13
+                    if (objet.y == 11 || objet.y == 10) {newY--;}
+                    else if (objet.y == 12) {newY -= 2;}
+                    else if (objet.y == 13) {continue;}
+                    break;
+                case 2: // x 17
+                    if (objet.x == 20 || objet.x == 21) {newX++;}
+                    else if (objet.x == 19) {newX += 2;}
+                    else if (objet.x == 18) {continue;}
+                    break;
+                case 3: // x 13
+                    if (objet.x == 11 || objet.x == 10) {newX--;}
+                    else if (objet.x == 12) {newX -= 2;}
+                    else if (objet.x == 13) {continue;}
+                    break;
+            }
+        }
+
+
+        // Libère l'ancienne position
         free_position(objet);
 
 
