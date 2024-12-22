@@ -363,22 +363,22 @@ void deplacement() {
         if (stop) {
             // Calcul de la distance
             switch (objet.direction) {
-                case 0: // y 23
+                case 0:
                     if (objet.y == 25|| objet.y == 26) {newY++;}
                     else if (objet.y == 24) {newY += 2;}
                     else if (objet.y == 23) {continue;}
                     break;
-                case 1: // y 13
+                case 1:
                     if (objet.y == 11 || objet.y == 10) {newY--;}
                     else if (objet.y == 12) {newY -= 2;}
                     else if (objet.y == 13) {continue;}
                     break;
-                case 2: // x 17
+                case 2:
                     if (objet.x == 20 || objet.x == 21) {newX++;}
                     else if (objet.x == 19) {newX += 2;}
                     else if (objet.x == 18) {continue;}
                     break;
-                case 3: // x 13
+                case 3:
                     if (objet.x == 11 || objet.x == 10) {newX--;}
                     else if (objet.x == 12) {newX -= 2;}
                     else if (objet.x == 13) {continue;}
