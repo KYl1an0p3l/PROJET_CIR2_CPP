@@ -20,12 +20,12 @@ using namespace sf;
 //----------------------Structures-------------------------------------------------------------
 
 typedef struct Objet {
-    int x;
-    int y;
-    int direction;
-    int longueur; //longueur = longueur réelle -1
-    int vitesse;
-    int id;
+    int x;             // Position en X
+    int y;             // Position en Y
+    int direction;     // Direction : 0 (Haut), 1 (Bas), 2 (Gauche), 3 (Droite)
+    int longueur;      // Longueur de l'objet (réelle - 1)
+    int vitesse;       // Vitesse de déplacement
+    int id;            // Identifiant unique pour le type d'objet
     vector<int> voie; //Stocke la case sur laquelle l'objet vient de se déplacer
 }Objet;
 
@@ -37,6 +37,7 @@ int cpt = 0;
 RenderWindow window(VideoMode(800, 640), "Projet CPP");
 vector<Objet> objets;
 mutex objets_mutex;
+
 
 //------------------Fonctions----------------------------------------------------------------
 
@@ -50,9 +51,9 @@ bool gestion_stop(Objet objet, int& etat_feu);
 
 //-----------------Threads-------------------------------------------------------------------------------------------
 
-void thread_gestion_couleur();
-void thread_gestion_feux();
-void thread_generation_objets();
+//void thread_generation_voiture();
+//void thread_generation_pietons();
+//void thread_deplacements();
 
 
 //-------------Fonctions (explicités)---------------------------------------------------------------------------
@@ -155,18 +156,18 @@ void generation_voitures() {
     int direction = rand() % 4;
     for (int i = 0; i < 4; i++) {
         switch ((direction + i) % 4) {
-        case 0: // Haut
+        case 0: // Bas
             if (carte[0][15] == 1 && carte[1][15] == 1 && carte[2][15] == 1 && carte[3][15] == 1) {
-                objets.push_back({ 15, 1, 0, 1, 3, 6, vector<int>{1, 1} });
+                objets.push_back({ 15, 1, 1, 1, 3, 6, vector<int>{1, 1} });
                 carte[0][15] = 6;
                 carte[1][15] = 6;
                 return;
             }
             break;
 
-        case 1: // Bas
+        case 1: // Haut
             if (carte[31][16] == 1 && carte[30][16] == 1 && carte[29][16] == 1 && carte[28][16] == 1) {
-                objets.push_back({ 16, 30, 1, 1, 3, 6, vector<int>{1, 1} });
+                objets.push_back({ 16, 30, 0, 1, 3, 6, vector<int>{1, 1} });
                 carte[31][16] = 6;
                 carte[30][16] = 6;
                 return;
@@ -201,17 +202,17 @@ void generation_pietons() {
     int direction = rand() % 4;
     for (int i = 0; i < 4; i++) {
         switch ((direction + i) % 4) {
-        case 0: // Haut
+        case 0: // Bas
             if (carte[0][13] == 4 && carte[1][13] == 4) {
-                objets.push_back({ 0, 13, 0, 0, 1, 7, vector<int>{4} });
-                carte[0][13] = 7;
+                objets.push_back({ 0, 13, 1, 0, 1, 7, vector<int>{4} });
+                carte[13][0] = 7;
                 return;
             }
             break;
 
-        case 1: // Bas
+        case 1: // Haut
             if (carte[31][18] == 4 && carte[30][18] == 4) {
-                objets.push_back({ 31, 18, 1, 0, 1, 7, vector<int>{4} });
+                objets.push_back({ 31, 18, 0, 0, 1, 7, vector<int>{4} });
                 carte[31][18] = 7;
                 return;
             }
@@ -325,7 +326,12 @@ void deplacement() {
             if (newY >= 3) {
                 for (int i = 0; i < objet.vitesse; i++) {
                     if (!collision) {
-                        collision = carte[newY + i][newX] == objet.id;
+                        if (objet.id == 7) {
+                            collision = carte[newY - 1][newX] == objet.id;
+                        }
+                        else {
+                            collision = carte[newY - i][newX] == objet.id;
+                        }
                     }
                 }
             }
@@ -334,7 +340,12 @@ void deplacement() {
             if (newY <= 28) {
                 for (int i = 0; i < objet.vitesse; i++) {
                     if (!collision) {
-                        collision = carte[newY - i][newX] == objet.id;
+                        if (objet.id == 7) {
+                            collision = carte[newY + 1][newX] == objet.id;
+                        }
+                        else {
+                            collision = carte[newY + i][newX] == objet.id;
+                        }
                     }
                 }
             }
@@ -343,7 +354,12 @@ void deplacement() {
             if (newX >= 3) {
                 for (int i = 0; i < objet.vitesse; i++) {
                     if (!collision) {
-                        collision = carte[newY][newX + i] == objet.id;
+                        if (objet.id == 7) {
+                            collision = carte[newY][newX - 1] == objet.id;
+                        }
+                        else {
+                            collision = carte[newY][newX - i] == objet.id;
+                        }
                     }
                 }
             }
@@ -352,7 +368,12 @@ void deplacement() {
             if (newX <= 28) {
                 for (int i = 0; i < objet.vitesse; i++) {
                     if (!collision) {
-                        collision = carte[newY][newX - i] == objet.id;
+                        if (objet.id == 7) {
+                            collision = carte[newY][newX + 1] == objet.id;
+                        }
+                        else {
+                            collision = carte[newY][newX + i] == objet.id;
+                        }
                     }
                 }
             }
@@ -439,28 +460,26 @@ void deplacement() {
 
 //----------------------------Threads (explicités)--------------------------------------------
 
-void thread_gestion_couleur() {
-    while (window.isOpen()) {
-        objets_mutex.lock();
-        gestion_couleur();
-        objets_mutex.unlock();
-        this_thread::sleep_for(chrono::milliseconds(33)); // 30 FPS
-    }
-}
-
-void thread_gestion_feux() {
-    while (window.isOpen()) {
-        gestion_feux(cpt, etat_feu);
-        this_thread::sleep_for(chrono::milliseconds(33)); // 30 FPS
-    }
-}
-
-void thread_generation_objets() {
-    while (window.isOpen()) {
-        objets_mutex.lock();
-        generation_voitures();
-        generation_pietons();
-        objets_mutex.unlock();
-        this_thread::sleep_for(chrono::milliseconds(33));
-    }
-}
+//void thread_generation_voiture() {
+//        //objets_mutex.lock();
+//        generation_voitures();
+//        //objets_mutex.unlock();
+//        
+//        this_thread::sleep_for(chrono::milliseconds(33));
+//}
+//
+//void thread_generation_pietons() {
+//        //objets_mutex.lock();
+//        generation_pietons();
+//        //objets_mutex.unlock();
+//        
+//        this_thread::sleep_for(chrono::milliseconds(33));
+//}
+//
+//void thread_deplacements() {
+//        //objets_mutex.lock();
+//        deplacement();
+//        //objets_mutex.unlock();
+//        
+//        this_thread::sleep_for(chrono::milliseconds(33));
+//}

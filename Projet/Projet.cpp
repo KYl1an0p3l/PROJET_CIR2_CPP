@@ -5,7 +5,6 @@
 
 int main()
 {
-
     window.setFramerateLimit(30);
 
     while (window.isOpen()) {
@@ -23,24 +22,14 @@ int main()
 
         gestion_couleur();
         gestion_feux(cpt, etat_feu);
-        cpt++; //On passe 1 itération
         generation_voitures();
         generation_pietons();
-        objets_mutex.lock();
-        printf("\n");
-        for (int i = 0; i < 32; i++) {
-            printf("%d", carte[19][i]);
-        }
         deplacement();
-        objets_mutex.unlock();
+        cpt++; //On passe 1 itération
 
         window.display();
         this_thread::sleep_for(chrono::seconds(1));
     }
-
-    jthread t_gestion_couleur(thread_gestion_couleur);
-    jthread t_gestion_feux(thread_gestion_feux);
-    jthread t_generation_objets(thread_generation_objets);
 
     window.close();
     return 0;
