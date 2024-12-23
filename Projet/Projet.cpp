@@ -26,10 +26,9 @@ int main()
         generation_pietons();
         generation_bus();
         deplacement();
-        cpt++; //On passe 1 itération
 
         window.display();
-        this_thread::sleep_for(chrono::seconds(1));
+        this_thread::sleep_for(chrono::milliseconds(100));
     }
 
     window.close();

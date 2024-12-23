@@ -108,23 +108,27 @@ void gestion_feux(int& cpt, int& etat_feu) {
             feu.setFillColor(Color::Red);
             feu2.setFillColor(Color::Green);
             etat_feu = 1;
+            carte[14][13] = 4;carte[14][18] = 4;carte[22][18] = 4;carte[22][13] = 4; //On reset les coins des troittoirs pour éviter que des piétons s'y bloquent 
         }
         else if (etat_feu == 1) {
             feu.setFillColor(Color::Red);
             feu2.setFillColor(Color(255, 128, 0));
+            cpt += 49;
             etat_feu = 2;
-            cpt += 48;
+            carte[14][13] = 4;carte[14][18] = 4;carte[22][18] = 4;carte[22][13] = 4; //On reset les coins des troittoirs pour éviter que des piétons s'y bloquent 
         }
         else if (etat_feu == 2) {
             feu.setFillColor(Color::Green);
             feu2.setFillColor(Color::Red);
             etat_feu = 3;
+            carte[14][13] = 4;carte[14][18] = 4;carte[22][18] = 4;carte[22][13] = 4; //On reset les coins des troittoirs pour éviter que des piétons s'y bloquent 
         }
         else if (etat_feu == 3) {
             feu.setFillColor(Color(255, 128, 0));
             feu2.setFillColor(Color::Red);
+            cpt += 49;
             etat_feu = 0;
-            cpt += 48;
+            carte[14][13] = 4;carte[14][18] = 4;carte[22][18] = 4;carte[22][13] = 4; //On reset les coins des troittoirs pour éviter que des piétons s'y bloquent 
         }
     }
     else {
@@ -135,7 +139,7 @@ void gestion_feux(int& cpt, int& etat_feu) {
         else if (etat_feu == 2) {
             feu.setFillColor(Color::Red);
             feu2.setFillColor(Color(255, 128, 0));
-            cpt += 48; //Pour que l'on ne passe que 10 itérations en orange
+            cpt += 49; //Pour que l'on ne passe que 2 itérations en orange
         }
         else if (etat_feu == 3) {
             feu.setFillColor(Color::Green);
@@ -144,10 +148,10 @@ void gestion_feux(int& cpt, int& etat_feu) {
         else if (etat_feu == 0) {
             feu.setFillColor(Color(255, 128, 0));
             feu2.setFillColor(Color::Red);
-            cpt += 48; //Pour que l'on ne passe que 10 itérations en orange
+            cpt += 49; //Pour que l'on ne passe que 2 itérations en orange
         }
     }
-    cpt++;
+    cpt++;//On passe 1 itération
     window.draw(feu);
     window.draw(feu2);
 
@@ -321,8 +325,8 @@ bool gestion_stop(Objet objet, int& etat_feu) {
     else if (objet.id == 7) {
         switch (objet.direction) {
         case 0: // Haut
-            if (etat_feu == 3) { break; } //Feu vert
-            else { stop = true; }
+            if (etat_feu == 3 && carte[22][17] != 7 && carte[22][16] != 7) { break; } //Feu vert
+            stop = true;
             break;
         case 1: // Bas
             if (etat_feu == 3) { break; } // Feu vert
@@ -380,7 +384,8 @@ void deplacement() {
                             }
                             else {
                                 if (objet.id == 7) {
-                                    collision = carte[newY - 1][newX] == k;
+                                    collision = carte[newY - 2][newX] == objet.id;
+                                    collision = carte[newY - 1][newX] == objet.id;
                                 }
                                 else {
                                     collision = carte[newY - i][newX] == k;
@@ -401,7 +406,8 @@ void deplacement() {
                             }
                             else {
                                 if (objet.id == 7) {
-                                    collision = carte[newY + 1][newX] == k;
+                                    collision = carte[newY + 2][newX] == objet.id;
+                                    collision = carte[newY + 1][newX] == objet.id;
                                 }
                                 else {
                                     collision = carte[newY + i][newX] == k;
@@ -422,7 +428,8 @@ void deplacement() {
                             }
                             else {
                                 if (objet.id == 7) {
-                                    collision = carte[newY][newX - 1] == k;
+                                    collision = carte[newY][newX - 2] == objet.id;
+                                    collision = carte[newY][newX - 1] == objet.id;
                                 }
                                 else {
                                     collision = carte[newY][newX - i] == k;
@@ -443,7 +450,8 @@ void deplacement() {
                             }
                             else {
                                 if (objet.id == 7) {
-                                    collision = carte[newY][newX + 1] == k;
+                                     collision = carte[newY][newX + 2] == objet.id;
+                                     collision = carte[newY][newX + 1] == objet.id;
                                 }
                                 else {
                                     collision = carte[newY][newX + i] == k;
@@ -479,30 +487,30 @@ void deplacement() {
                     else if (objet.y == 13) { continue; }
                     break;
                 case 2: //Gauche
-                    if (objet.x == 20 || objet.x == 21) { newX++; }
-                    else if (objet.x == 19) { newX += 2; }
-                    else if (objet.x == 18) { continue; }
+                    if (objet.x == 21 || objet.x == 22) { newX++; }
+                    else if (objet.x == 20) { newX += 2; }
+                    else if (objet.x == 19) { continue; }
                     break;
                 case 3: //Droite
-                    if (objet.x == 11 || objet.x == 10) { newX--; }
-                    else if (objet.x == 12) { newX -= 2; }
-                    else if (objet.x == 13) { continue; }
+                    if (objet.x == 10 || objet.x == 9) { newX--; }
+                    else if (objet.x == 11) { newX -= 2; }
+                    else if (objet.x == 12) { continue; }
                     break;
                 }
             }
             else if (objet.id == 7) {
                 switch (objet.direction) {
                 case 0: //Haut
-                    if (objet.y == 22) { continue; }
+                    if (objet.y == 23) { continue; }
                     break;
                 case 1: //Bas
-                    if (objet.y == 14) { continue; }
+                    if (objet.y == 13) { continue; }
                     break;
                 case 2: //Gauche
-                    if (objet.x == 17) { continue; }
+                    if (objet.x == 19) { continue; }
                     break;
                 case 3: //Droite
-                    if (objet.x == 14) { continue; }
+                    if (objet.x == 12) { continue; }
                     break;
                 }
 

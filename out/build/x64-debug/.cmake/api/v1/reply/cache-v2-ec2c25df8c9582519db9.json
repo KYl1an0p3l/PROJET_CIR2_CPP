@@ -539,7 +539,7 @@
 				}
 			],
 			"type" : "PATH",
-			"value" : "C:/Users/Admin/source/repos/PROJET_CIR2_CPP/out/install/x64-Debug"
+			"value" : "C:/Users/Admin/Source/Repos/PROJET_CIR2_CPP/out/install/x64-Debug"
 		},
 		{
 			"name" : "CMAKE_LINKER",
