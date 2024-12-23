@@ -45,6 +45,7 @@ void gestion_couleur();
 void gestion_feux(int& cpt, int& etat_feu);
 void generation_voitures();
 void generation_pietons();
+void generation_bus();
 void deplacement();
 void free_position(Objet objet);
 bool gestion_stop(Objet objet, int& etat_feu);
@@ -83,6 +84,9 @@ void gestion_couleur() {
             }
             else if (carte[i][j] == 7) {
                 tile.setFillColor(Color::Red);
+            }
+            else if (carte[i][j] == 8) {
+                tile.setFillColor(Color::Yellow);
             }
             window.draw(tile);
         }
@@ -157,7 +161,7 @@ void generation_voitures() {
     for (int i = 0; i < 4; i++) {
         switch ((direction + i) % 4) {
         case 0: // Bas
-            if (carte[0][15] == 1 && carte[1][15] == 1 && carte[2][15] == 1 && carte[3][15] == 1) {
+            if (carte[0][15] == 1 && carte[1][15] == 1 && carte[2][15] == 1) {
                 objets.push_back({ 15, 1, 1, 1, 3, 6, vector<int>{1, 1} });
                 carte[0][15] = 6;
                 carte[1][15] = 6;
@@ -166,7 +170,7 @@ void generation_voitures() {
             break;
 
         case 1: // Haut
-            if (carte[31][16] == 1 && carte[30][16] == 1 && carte[29][16] == 1 && carte[28][16] == 1) {
+            if (carte[31][16] == 1 && carte[30][16] == 1 && carte[29][16] == 1) {
                 objets.push_back({ 16, 30, 0, 1, 3, 6, vector<int>{1, 1} });
                 carte[31][16] = 6;
                 carte[30][16] = 6;
@@ -175,7 +179,7 @@ void generation_voitures() {
             break;
 
         case 2: // Gauche
-            if (carte[17][31] == 1 && carte[17][30] == 1 && carte[17][29] == 1 && carte[17][28] == 1) {
+            if (carte[17][31] == 1 && carte[17][30] == 1 && carte[17][29] == 1) {
                 objets.push_back({ 30, 17, 2, 1, 3, 6, vector<int>{1, 1} });
                 carte[17][31] = 6;
                 carte[17][30] = 6;
@@ -184,7 +188,7 @@ void generation_voitures() {
             break;
 
         case 3: // Droite
-            if (carte[19][0] == 1 && carte[19][1] == 1 && carte[19][2] == 1 && carte[19][3] == 1) {
+            if (carte[19][0] == 1 && carte[19][1] == 1 && carte[19][2] == 1) {
                 objets.push_back({ 1, 19, 3, 1, 3, 6, vector<int>{1, 1} });
                 carte[19][0] = 6;
                 carte[19][1] = 6;
@@ -237,6 +241,30 @@ void generation_pietons() {
     }
 }
 
+void generation_bus() {
+    if (rand() % 100 >= 50) return;
+    printf("\nTest_gen_b");
+
+    int direction = rand() % 4;
+    for (int i = 0; i < 4; i++) {
+        switch ((direction + i) % 4) {
+        case 2: // Gauche
+            if (carte[16][31] == 2 && carte[16][30] == 2 && carte[16][29] == 2 && carte[16][28] == 2) {
+                objets.push_back({ 29, 16, 2, 2, 3, 8, vector<int>{2, 2, 2} });
+                return;
+            }
+            break;
+
+        case 3: // Droite
+            if (carte[20][0] == 2 && carte[20][1] == 1 && carte[20][2] == 2 && carte[20][3] == 2) {
+                objets.push_back({ 2, 20, 3, 2, 3, 8, vector<int>{2, 1, 2} }); //La voie à cet endroit est particulière
+                return;
+            }
+            break;
+        }
+    }
+}
+
 void free_position(Objet objet) {
     // Libérer les anciennes positions sur la carte
     switch (objet.direction) {
@@ -266,7 +294,7 @@ void free_position(Objet objet) {
 // Vérification obligation d'arret
 bool gestion_stop(Objet objet, int& etat_feu) {
     bool stop = false;
-    if (objet.id == 6) {
+    if (objet.id == 6 || objet.id == 8) {
         switch (objet.direction) {
         case 0: // Haut
             if (etat_feu == 3) { break; } // Feu vert
@@ -293,19 +321,19 @@ bool gestion_stop(Objet objet, int& etat_feu) {
     else if (objet.id == 7) {
         switch (objet.direction) {
         case 0: // Haut
-            if (etat_feu == 1) { break; } //Feu vert
+            if (etat_feu == 3) { break; } //Feu vert
             else { stop = true; }
             break;
         case 1: // Bas
-            if (etat_feu == 1) { break; } // Feu vert
+            if (etat_feu == 3) { break; } // Feu vert
             else { stop = true; }
             break;
         case 2: // Gauche
-            if (etat_feu == 3) { break; } // Feu vert
+            if (etat_feu == 1) { break; } // Feu vert
             else { stop = true; }
             break;
         case 3: // Droite
-            if (etat_feu == 3) { break; } // Feu vert
+            if (etat_feu == 1) { break; } // Feu vert
             else { stop = true; }
             break;
         }
@@ -346,11 +374,18 @@ void deplacement() {
             if (newY >= 3) {
                 for (int i = 0; i < objet.vitesse; i++) {
                     if (!collision) {
-                        if (objet.id == 7) {
-                            collision = carte[newY - 1][newX] == objet.id;
-                        }
-                        else {
-                            collision = carte[newY - i][newX] == objet.id;
+                        for (int k = 6; k < 10; k++) {
+                            if (collision) {
+                                break;
+                            }
+                            else {
+                                if (objet.id == 7) {
+                                    collision = carte[newY - 1][newX] == k;
+                                }
+                                else {
+                                    collision = carte[newY - i][newX] == k;
+                                }
+                            }
                         }
                     }
                 }
@@ -360,11 +395,18 @@ void deplacement() {
             if (newY <= 28) {
                 for (int i = 0; i < objet.vitesse; i++) {
                     if (!collision) {
-                        if (objet.id == 7) {
-                            collision = carte[newY + 1][newX] == objet.id;
-                        }
-                        else {
-                            collision = carte[newY + i][newX] == objet.id;
+                        for (int k = 6; k < 10; k++) {
+                            if (collision) {
+                                break;
+                            }
+                            else {
+                                if (objet.id == 7) {
+                                    collision = carte[newY + 1][newX] == k;
+                                }
+                                else {
+                                    collision = carte[newY + i][newX] == k;
+                                }
+                            }
                         }
                     }
                 }
@@ -374,11 +416,18 @@ void deplacement() {
             if (newX >= 3) {
                 for (int i = 0; i < objet.vitesse; i++) {
                     if (!collision) {
-                        if (objet.id == 7) {
-                            collision = carte[newY][newX - 1] == objet.id;
-                        }
-                        else {
-                            collision = carte[newY][newX - i] == objet.id;
+                        for (int k = 6; k < 10; k++) {
+                            if (collision) {
+                                break;
+                            }
+                            else {
+                                if (objet.id == 7) {
+                                    collision = carte[newY][newX - 1] == k;
+                                }
+                                else {
+                                    collision = carte[newY][newX - i] == k;
+                                }
+                            }
                         }
                     }
                 }
@@ -388,11 +437,18 @@ void deplacement() {
             if (newX <= 28) {
                 for (int i = 0; i < objet.vitesse; i++) {
                     if (!collision) {
-                        if (objet.id == 7) {
-                            collision = carte[newY][newX + 1] == objet.id;
-                        }
-                        else {
-                            collision = carte[newY][newX + i] == objet.id;
+                        for (int k = 6; k < 10; k++) {
+                            if (collision) {
+                                break;
+                            }
+                            else {
+                                if (objet.id == 7) {
+                                    collision = carte[newY][newX + 1] == k;
+                                }
+                                else {
+                                    collision = carte[newY][newX + i] == k;
+                                }
+                            }
                         }
                     }
                 }
@@ -410,7 +466,7 @@ void deplacement() {
 
         if (stop) {
             // Calcul de la distance
-            if (objet.id == 6) {
+            if (objet.id == 6 || objet.id == 8) {
                 switch (objet.direction) {
                 case 0: //Haut
                     if (objet.y == 25 || objet.y == 26) { newY++; }

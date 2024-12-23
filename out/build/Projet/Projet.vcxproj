@@ -339,6 +339,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\Users\Admin\source\repos\PROJET_CIR2_CPP\Projet\Projet.cpp" />
     <ClInclude Include="C:\Users\Admin\source\repos\PROJET_CIR2_CPP\Projet\Projet.h" />
     <ClCompile Include="C:\Users\Admin\source\repos\PROJET_CIR2_CPP\Projet\map.cpp" />
+    <ClInclude Include="C:\Users\Admin\source\repos\PROJET_CIR2_CPP\Projet\map.h" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

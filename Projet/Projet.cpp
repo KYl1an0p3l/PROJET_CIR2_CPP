@@ -24,6 +24,7 @@ int main()
         gestion_feux(cpt, etat_feu);
         generation_voitures();
         generation_pietons();
+        generation_bus();
         deplacement();
         cpt++; //On passe 1 itération
 
