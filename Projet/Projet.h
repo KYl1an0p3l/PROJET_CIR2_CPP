@@ -174,7 +174,7 @@ void generation_voitures() {
             }
             break;
 
-        case 2: // Droite
+        case 2: // Gauche
             if (carte[17][31] == 1 && carte[17][30] == 1 && carte[17][29] == 1 && carte[17][28] == 1) {
                 objets.push_back({ 30, 17, 2, 1, 3, 6, vector<int>{1, 1} });
                 carte[17][31] = 6;
@@ -183,7 +183,7 @@ void generation_voitures() {
             }
             break;
 
-        case 3: // Gauche
+        case 3: // Droite
             if (carte[19][0] == 1 && carte[19][1] == 1 && carte[19][2] == 1 && carte[19][3] == 1) {
                 objets.push_back({ 1, 19, 3, 1, 3, 6, vector<int>{1, 1} });
                 carte[19][0] = 6;
@@ -204,31 +204,31 @@ void generation_pietons() {
         switch ((direction + i) % 4) {
         case 0: // Bas
             if (carte[0][13] == 4 && carte[1][13] == 4) {
-                objets.push_back({ 0, 13, 1, 0, 1, 7, vector<int>{4} });
-                carte[13][0] = 7;
+                objets.push_back({ 13, 0, 1, 0, 1, 7, vector<int>{4} });
+                carte[0][13] = 7;
                 return;
             }
             break;
 
         case 1: // Haut
             if (carte[31][18] == 4 && carte[30][18] == 4) {
-                objets.push_back({ 31, 18, 0, 0, 1, 7, vector<int>{4} });
+                objets.push_back({ 18, 31, 0, 0, 1, 7, vector<int>{4} });
                 carte[31][18] = 7;
                 return;
             }
             break;
 
-        case 2: // Droite
+        case 2: // Gauche
             if (carte[14][31] == 4 && carte[14][30] == 4) {
-                objets.push_back({ 14, 31, 2, 0, 1, 7, vector<int>{4} });
+                objets.push_back({ 31, 14, 2, 0, 1, 7, vector<int>{4} });
                 carte[14][31] = 7;
                 return;
             }
             break;
 
-        case 3: // Gauche
+        case 3: // Droite
             if (carte[22][0] == 4 && carte[22][1] == 1) { //Ce trottoir est un peu spécifique
-                objets.push_back({ 22, 0, 3, 0, 1, 7, vector<int>{4} });
+                objets.push_back({ 0, 22, 3, 0, 1, 7, vector<int>{4} });
                 carte[22][0] = 7;
                 return;
             }
@@ -287,6 +287,26 @@ bool gestion_stop(Objet objet, int& etat_feu) {
             if (etat_feu == 1) { break; } // Feu vert
             if (objet.x > 11 && etat_feu == 2) { break; } // Freinage trop dangereux ou feu dépassé
             stop = true;
+            break;
+        }
+    }
+    else if (objet.id == 7) {
+        switch (objet.direction) {
+        case 0: // Haut
+            if (etat_feu == 1) { break; } //Feu vert
+            else { stop = true; }
+            break;
+        case 1: // Bas
+            if (etat_feu == 1) { break; } // Feu vert
+            else { stop = true; }
+            break;
+        case 2: // Gauche
+            if (etat_feu == 3) { break; } // Feu vert
+            else { stop = true; }
+            break;
+        case 3: // Droite
+            if (etat_feu == 3) { break; } // Feu vert
+            else { stop = true; }
             break;
         }
     }
@@ -390,27 +410,47 @@ void deplacement() {
 
         if (stop) {
             // Calcul de la distance
-            switch (objet.direction) {
-            case 0:
-                if (objet.y == 25 || objet.y == 26) { newY++; }
-                else if (objet.y == 24) { newY += 2; }
-                else if (objet.y == 23) { continue; }
-                break;
-            case 1:
-                if (objet.y == 11 || objet.y == 10) { newY--; }
-                else if (objet.y == 12) { newY -= 2; }
-                else if (objet.y == 13) { continue; }
-                break;
-            case 2:
-                if (objet.x == 20 || objet.x == 21) { newX++; }
-                else if (objet.x == 19) { newX += 2; }
-                else if (objet.x == 18) { continue; }
-                break;
-            case 3:
-                if (objet.x == 11 || objet.x == 10) { newX--; }
-                else if (objet.x == 12) { newX -= 2; }
-                else if (objet.x == 13) { continue; }
-                break;
+            if (objet.id == 6) {
+                switch (objet.direction) {
+                case 0: //Haut
+                    if (objet.y == 25 || objet.y == 26) { newY++; }
+                    else if (objet.y == 24) { newY += 2; }
+                    else if (objet.y == 23) { continue; }
+                    break;
+                case 1: //Bas
+                    if (objet.y == 11 || objet.y == 10) { newY--; }
+                    else if (objet.y == 12) { newY -= 2; }
+                    else if (objet.y == 13) { continue; }
+                    break;
+                case 2: //Gauche
+                    if (objet.x == 20 || objet.x == 21) { newX++; }
+                    else if (objet.x == 19) { newX += 2; }
+                    else if (objet.x == 18) { continue; }
+                    break;
+                case 3: //Droite
+                    if (objet.x == 11 || objet.x == 10) { newX--; }
+                    else if (objet.x == 12) { newX -= 2; }
+                    else if (objet.x == 13) { continue; }
+                    break;
+                }
+            }
+            else if (objet.id == 7) {
+                switch (objet.direction) {
+                case 0: //Haut
+                    if (objet.y == 22) { continue; }
+                    break;
+                case 1: //Bas
+                    if (objet.y == 14) { continue; }
+                    break;
+                case 2: //Gauche
+                    if (objet.x == 17) { continue; }
+                    break;
+                case 3: //Droite
+                    if (objet.x == 14) { continue; }
+                    break;
+                }
+
+
             }
         }
 
