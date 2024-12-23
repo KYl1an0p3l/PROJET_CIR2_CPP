@@ -302,22 +302,18 @@ bool gestion_stop(Objet objet, int& etat_feu) {
         switch (objet.direction) {
         case 0: // Haut
             if (etat_feu == 3) { break; } // Feu vert
-            if (objet.y < 21 && etat_feu == 0) { break; } // Freinage trop dangereux ou feu dépassé
             stop = true;
             break;
         case 1: // Bas
             if (etat_feu == 3) { break; } // Feu vert
-            if (objet.y > 11 && etat_feu == 0) { break; } // Freinage trop dangereux ou feu dépassé
             stop = true;
             break;
         case 2: // Gauche
             if (etat_feu == 1) { break; } // Feu vert
-            if (objet.x < 21 && etat_feu == 2) { break; } // Freinage trop dangereux ou feu dépassé
             stop = true;
             break;
         case 3: // Droite
             if (etat_feu == 1) { break; } // Feu vert
-            if (objet.x > 11 && etat_feu == 2) { break; } // Freinage trop dangereux ou feu dépassé
             stop = true;
             break;
         }
@@ -384,11 +380,18 @@ void deplacement() {
                             }
                             else {
                                 if (objet.id == 7) {
-                                    collision = carte[newY - 2][newX] == objet.id;
-                                    collision = carte[newY - 1][newX] == objet.id;
+                                    collision = carte[newY - 1][newX] == k;
                                 }
                                 else {
                                     collision = carte[newY - i][newX] == k;
+                                    if (collision) { break; }
+                                    collision = carte[newY - i][newX + 1] == 7; //S'il y a un piéton, on le laisse passer
+                                    if (collision) { break; }
+                                    collision = carte[newY - i][newX - 1] == 7;
+                                    if (collision) { break; }
+                                    collision = carte[newY - i + 1][newX - 1] == 7;
+                                    if (collision) { break; }
+                                    collision = carte[newY - i + 1][newX - 1] == 7;
                                 }
                             }
                         }
@@ -406,11 +409,18 @@ void deplacement() {
                             }
                             else {
                                 if (objet.id == 7) {
-                                    collision = carte[newY + 2][newX] == objet.id;
-                                    collision = carte[newY + 1][newX] == objet.id;
+                                    collision = carte[newY + 1][newX] == k;
                                 }
                                 else {
                                     collision = carte[newY + i][newX] == k;
+                                    if (collision) { break; }
+                                    collision = carte[newY + i][newX + 1] == 7; //S'il y a un piéton, on le laisse passer
+                                    if (collision) { break; }
+                                    collision = carte[newY + i][newX - 1] == 7;
+                                    if (collision) { break; }
+                                    collision = carte[newY + i - 1][newX - 1] == 7;
+                                    if (collision) { break; }
+                                    collision = carte[newY + i - 1][newX - 1] == 7;
                                 }
                             }
                         }
@@ -428,11 +438,22 @@ void deplacement() {
                             }
                             else {
                                 if (objet.id == 7) {
-                                    collision = carte[newY][newX - 2] == objet.id;
-                                    collision = carte[newY][newX - 1] == objet.id;
+                                    collision = carte[newY][newX - 1] == k;
                                 }
                                 else {
                                     collision = carte[newY][newX - i] == k;
+                                    if (collision) { break; }
+                                    collision = carte[newY + 1][newX - i] == 7; //S'il y a un piéton, on le laisse passer
+                                    if (collision) { break; }
+                                    collision = carte[newY - 1][newX - i] == 7;
+                                    if (collision) { break; }
+                                    collision = carte[newY - 1][newX - i + 1] == 7;
+                                    if (collision) { break; }
+                                    collision = carte[newY - 1][newX - i + 1] == 7;
+                                    if (collision) { break; }
+                                    collision = carte[newY - 1][newX - i + 2] == 7;
+                                    if (collision) { break; }
+                                    collision = carte[newY - 1][newX - i + 2] == 7;
                                 }
                             }
                         }
@@ -450,11 +471,22 @@ void deplacement() {
                             }
                             else {
                                 if (objet.id == 7) {
-                                     collision = carte[newY][newX + 2] == objet.id;
-                                     collision = carte[newY][newX + 1] == objet.id;
+                                     collision = carte[newY][newX + 1] == k;
                                 }
                                 else {
                                     collision = carte[newY][newX + i] == k;
+                                    if (collision) { break; }
+                                    collision = carte[newY + 1][newX + i] == 7; //S'il y a un piéton, on le laisse passer
+                                    if (collision) { break; }
+                                    collision = carte[newY - 1][newX + i] == 7;
+                                    if (collision) { break; }
+                                    collision = carte[newY - 1][newX + i - 1] == 7;
+                                    if (collision) { break; }
+                                    collision = carte[newY - 1][newX + i - 1] == 7;
+                                    if (collision) { break; }
+                                    collision = carte[newY - 1][newX + i - 2] == 7;
+                                    if (collision) { break; }
+                                    collision = carte[newY - 1][newX + i - 2] == 7;
                                 }
                             }
                         }
