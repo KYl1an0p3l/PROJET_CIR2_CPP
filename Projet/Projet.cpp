@@ -27,6 +27,10 @@ int main()
         generation_voitures();
         generation_pietons();
         objets_mutex.lock();
+        printf("\n");
+        for (int i = 0; i < 32; i++) {
+            printf("%d", carte[19][i]);
+        }
         deplacement();
         objets_mutex.unlock();
 
