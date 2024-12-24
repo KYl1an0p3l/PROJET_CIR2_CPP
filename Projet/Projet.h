@@ -36,7 +36,11 @@ int etat_feu = 0;
 int cpt = 0;
 RenderWindow window(VideoMode(800, 640), "Projet CPP");
 vector<Objet> objets;
-mutex objets_mutex;
+extern bool running; // Contrôle l'exécution des threads
+extern mutex objets_mutex; // Mutex pour protéger les objets
+extern mutex feu_mutex;    // Mutex pour protéger l'état des feux
+
+
 
 
 //------------------Fonctions----------------------------------------------------------------
@@ -51,6 +55,7 @@ void deplacement();
 void free_position(Objet objet);
 bool gestion_stop(Objet objet, int& etat_feu);
 void gestion_rotation(Objet& objet);
+void dessin_feux(int etat_feux);
 
 //-----------------Threads-------------------------------------------------------------------------------------------
 
@@ -98,72 +103,68 @@ void gestion_couleur() {
     }
 }
 
-void gestion_feux(int& cpt, int& etat_feu) {
+void dessin_feux(int etat_feux) {
     RectangleShape feu(Vector2f(TILE_SIZE, TILE_SIZE));
     RectangleShape feu2(Vector2f(TILE_SIZE, TILE_SIZE));
     feu.setPosition(220, 240);
     feu2.setPosition(400, 240);
-    if (cpt == 0) {
+    if (etat_feux == 1) {
         feu.setFillColor(Color::Red);
         feu2.setFillColor(Color::Green);
-        etat_feu = 1;
     }
-    else if ((cpt % 100) == 0) {
-        if (etat_feu == 0) {
-            feu.setFillColor(Color::Red);
-            feu2.setFillColor(Color::Green);
-            etat_feu = 1;
-            carte[14][13] = 4;carte[14][18] = 4;carte[22][18] = 4;carte[22][13] = 4; //On reset les coins des troittoirs pour éviter que des piétons s'y bloquent 
-        }
-        else if (etat_feu == 1) {
-            feu.setFillColor(Color::Red);
-            feu2.setFillColor(Color(255, 128, 0));
-            cpt += 49;
-            etat_feu = 2;
-            carte[14][13] = 4;carte[14][18] = 4;carte[22][18] = 4;carte[22][13] = 4; //On reset les coins des troittoirs pour éviter que des piétons s'y bloquent 
-        }
-        else if (etat_feu == 2) {
-            feu.setFillColor(Color::Green);
-            feu2.setFillColor(Color::Red);
-            etat_feu = 3;
-            carte[14][13] = 4;carte[14][18] = 4;carte[22][18] = 4;carte[22][13] = 4; //On reset les coins des troittoirs pour éviter que des piétons s'y bloquent 
-        }
-        else if (etat_feu == 3) {
-            feu.setFillColor(Color(255, 128, 0));
-            feu2.setFillColor(Color::Red);
-            cpt += 49;
-            etat_feu = 0;
-            carte[14][13] = 4;carte[14][18] = 4;carte[22][18] = 4;carte[22][13] = 4; //On reset les coins des troittoirs pour éviter que des piétons s'y bloquent 
-        }
+    else if (etat_feux == 2) {
+        feu.setFillColor(Color::Red);
+        feu2.setFillColor(Color(255, 128, 0));
     }
-    else {
-        if (etat_feu == 1) {
-            feu.setFillColor(Color::Red);
-            feu2.setFillColor(Color::Green);
-        }
-        else if (etat_feu == 2) {
-            feu.setFillColor(Color::Red);
-            feu2.setFillColor(Color(255, 128, 0));
-            cpt += 49; //Pour que l'on ne passe que 2 itérations en orange
-        }
-        else if (etat_feu == 3) {
-            feu.setFillColor(Color::Green);
-            feu2.setFillColor(Color::Red);
-        }
-        else if (etat_feu == 0) {
-            feu.setFillColor(Color(255, 128, 0));
-            feu2.setFillColor(Color::Red);
-            cpt += 49; //Pour que l'on ne passe que 2 itérations en orange
-        }
+    else if (etat_feux == 3) {
+        feu.setFillColor(Color::Green);
+        feu2.setFillColor(Color::Red);
     }
-    cpt++;//On passe 1 itération
+    else if (etat_feux == 0) {
+        feu.setFillColor(Color(255, 128, 0));
+        feu2.setFillColor(Color::Red);
+    }
     window.draw(feu);
     feu.setPosition(400, 480);
     window.draw(feu);
     window.draw(feu2);
     feu2.setPosition(220, 480);
     window.draw(feu2);
+}
 
+void gestion_feux(int& cpt, int& etat_feu) {
+    if (cpt == 0) {
+        etat_feu = 1;
+    }
+    else if ((cpt % 100) == 0) {
+        if (etat_feu == 0) {
+            etat_feu = 1;
+            carte[14][13] = 4;carte[14][18] = 4;carte[22][18] = 4;carte[22][13] = 4; //On reset les coins des troittoirs pour éviter que des piétons s'y bloquent 
+        }
+        else if (etat_feu == 1) {
+            cpt += 49;
+            etat_feu = 2;
+            carte[14][13] = 4;carte[14][18] = 4;carte[22][18] = 4;carte[22][13] = 4; //On reset les coins des troittoirs pour éviter que des piétons s'y bloquent 
+        }
+        else if (etat_feu == 2) {
+            etat_feu = 3;
+            carte[14][13] = 4;carte[14][18] = 4;carte[22][18] = 4;carte[22][13] = 4; //On reset les coins des troittoirs pour éviter que des piétons s'y bloquent 
+        }
+        else if (etat_feu == 3) {
+            cpt += 49;
+            etat_feu = 0;
+            carte[14][13] = 4;carte[14][18] = 4;carte[22][18] = 4;carte[22][13] = 4; //On reset les coins des troittoirs pour éviter que des piétons s'y bloquent 
+        }
+    }
+    else {
+        if (etat_feu == 2) {
+            cpt += 49; //Pour que l'on ne passe que 2 itérations en orange
+        }
+        else if (etat_feu == 0) {
+            cpt += 49; //Pour que l'on ne passe que 2 itérations en orange
+        }
+    }
+    cpt++;//On passe 1 itération
 }
 
 void generation_voitures() {
