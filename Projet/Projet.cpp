@@ -25,6 +25,7 @@ int main()
         generation_voitures();
         generation_pietons();
         generation_bus();
+        generation_velos();
         deplacement();
 
         window.display();
