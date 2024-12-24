@@ -101,8 +101,8 @@ void gestion_couleur() {
 void gestion_feux(int& cpt, int& etat_feu) {
     RectangleShape feu(Vector2f(TILE_SIZE, TILE_SIZE));
     RectangleShape feu2(Vector2f(TILE_SIZE, TILE_SIZE));
-    feu.setPosition(0, 0);
-    feu2.setPosition(0, 20);
+    feu.setPosition(220, 240);
+    feu2.setPosition(400, 240);
     if (cpt == 0) {
         feu.setFillColor(Color::Red);
         feu2.setFillColor(Color::Green);
@@ -158,6 +158,10 @@ void gestion_feux(int& cpt, int& etat_feu) {
     }
     cpt++;//On passe 1 itération
     window.draw(feu);
+    feu.setPosition(400, 480);
+    window.draw(feu);
+    window.draw(feu2);
+    feu2.setPosition(220, 480);
     window.draw(feu2);
 
 }
