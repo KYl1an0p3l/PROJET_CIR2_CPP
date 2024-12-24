@@ -35,7 +35,7 @@ typedef struct Objet {
 int etat_feu = 0;
 int cpt = 0;
 RenderWindow window(VideoMode(800, 640), "Projet CPP");
-vector<Objet> objets;
+vector<Objet> objets; //Tableau dynamique stockant l'intégralité des acteurs et leur informations
 extern bool running; // Contrôle l'exécution des threads
 extern mutex objets_mutex; // Mutex pour protéger les objets
 extern mutex feu_mutex;    // Mutex pour protéger l'état des feux
@@ -45,24 +45,17 @@ extern mutex feu_mutex;    // Mutex pour protéger l'état des feux
 
 //------------------Fonctions----------------------------------------------------------------
 
-void gestion_couleur();
-void gestion_feux(int& cpt, int& etat_feu);
-void generation_voitures();
-void generation_pietons();
-void generation_bus();
-void generation_velos();
-void deplacement();
-void free_position(Objet objet);
-bool gestion_stop(Objet objet, int& etat_feu);
-void gestion_rotation(Objet& objet);
-void dessin_feux(int etat_feux);
-
-//-----------------Threads-------------------------------------------------------------------------------------------
-
-//void thread_generation_voiture();
-//void thread_generation_pietons();
-//void thread_deplacements();
-
+void gestion_couleur(); //Gère l'affichage de la carte en couleur (SFML)
+void gestion_feux(int& cpt, int& etat_feu); //Gère l'état des feux
+void generation_voitures(); //Gère la génération des voitures
+void generation_pietons(); //Gère la génération des piétons
+void generation_bus(); //Gère la génération des bus
+void generation_velos(); //Gère la génération des vélos
+void deplacement(); //Gère le comportement de tous les acteurs encore sur la carte
+void free_position(Objet objet); //Gère la récupération des cases sur lesquels l'acteur a "marché" précédemment afin de les replacer lorsqu'il quitte ces cases
+bool gestion_stop(Objet objet, int& etat_feu); //Gère l'arrêt au feux des acteurs
+void gestion_rotation(Objet& objet); //Gère la potentielle rotation des acteurs, donc s'il tournent pour aller à droite ou pas.
+void dessin_feux(int etat_feux); //Gère l'affichage des feux
 
 //-------------Fonctions (explicités)---------------------------------------------------------------------------
 
@@ -828,29 +821,3 @@ void deplacement() {
         }
     }
 }
-
-//----------------------------Threads (explicités)--------------------------------------------
-
-//void thread_generation_voiture() {
-//        //objets_mutex.lock();
-//        generation_voitures();
-//        //objets_mutex.unlock();
-//        
-//        this_thread::sleep_for(chrono::milliseconds(33));
-//}
-//
-//void thread_generation_pietons() {
-//        //objets_mutex.lock();
-//        generation_pietons();
-//        //objets_mutex.unlock();
-//        
-//        this_thread::sleep_for(chrono::milliseconds(33));
-//}
-//
-//void thread_deplacements() {
-//        //objets_mutex.lock();
-//        deplacement();
-//        //objets_mutex.unlock();
-//        
-//        this_thread::sleep_for(chrono::milliseconds(33));
-//}

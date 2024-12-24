@@ -20,13 +20,13 @@ void thread_deplacement() { //Ce thread gère le comportement de TOUS les acteur
 }
 
 // Fonction de gestion des feux (thread)
-void thread_gestion_feux() {
+void thread_gestion_feux() { //Ce thread gère les feux, on préfère le mettre sur la même fréquence que déplacements même s'il fonctionne très bien même désyncronisé
     while (running) {
         {
             lock_guard<mutex> lock(feu_mutex); // Protéger l'accès à `etat_feu` et `cpt`
             gestion_feux(cpt, etat_feu);
         }
-        this_thread::sleep_for(chrono::milliseconds(33)); // Pour avoir environ 30 fps
+        this_thread::sleep_for(chrono::milliseconds(100)); // Pour avoir environ 30 fps
     }
 }
 
@@ -53,10 +53,10 @@ int main()
         window.clear(Color::White);
 
         
-        generation_voitures();
-        generation_pietons();
-        generation_bus();
-        generation_velos();
+        generation_voitures(); //Gère la génération des voitures
+        generation_pietons(); //Gère la génération des piétons
+        generation_bus(); //Gère la génération des bus
+        generation_velos(); //Gère la génération des vélos
         {
             lock_guard<mutex> lock(objets_mutex); // Protéger les accès aux objets pour le rendu
             gestion_couleur();
