@@ -59,7 +59,7 @@ int main()
         generation_velos(); //Gère la génération des vélos
         {
             lock_guard<mutex> lock(objets_mutex); // Protéger les accès aux objets pour le rendu
-            gestion_couleur();
+            gestion_couleur(); 
             dessin_feux(etat_feu);
         }
 
